@@ -30,7 +30,7 @@ class BERTopicAnalysis:
 
     def read_data(self):
         with open(self.input_file) as file:
-            lines = file.readlines()[:20000]
+            lines = file.readlines()
             self.text_to_analyse_list = [line.rstrip() for line in lines]
 
     def fit_BERTopic(self):
