@@ -4,16 +4,18 @@ from bertopic import BERTopic
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 
-# vectorizer_model = CountVectorizer(ngram_range=(1, 2), stop_words="english")
+# 
 # # TODO add stopwords properly
-# stopWords = stopwords.words('english') 
-# for word in stopwords.words('german'):
-#     stopWords.append(stopwords)
-# for word in stopwords.words('russian'):
-#     stopWords.append(word)
-# ukrstopWords = ['а', 'аби', 'абиде', 'абиким', 'абикого', 'абиколи', 'абикому', 'абикуди', 'абихто', 'абичий', 'абичийого', 'абичийому', 'абичим', 'абичию', 'абичия', 'абичиє', 'абичиєму', 'абичиєю', 'абичиєї', 'абичиї', 'абичиїй', 'абичиїм', 'абичиїми', 'абичиїх', 'абичого', 'абичому', 'абищо', 'абияка', 'абияке', 'абиякий']
-# for stopwords in ukrstopWords:
-#     stopWords.append(stopwords)
+stopWords = stopwords.words('english') 
+for word in stopwords.words('german'):
+    stopWords.append(word)
+for word in stopwords.words('russian'):
+    stopWords.append(word)
+ukrstopWords = ['а', 'аби', 'абиде', 'абиким', 'абикого', 'абиколи', 'абикому', 'абикуди', 'абихто', 'абичий', 'абичийого', 'абичийому', 'абичим', 'абичию', 'абичия', 'абичиє', 'абичиєму', 'абичиєю', 'абичиєї', 'абичиї', 'абичиїй', 'абичиїм', 'абичиїми', 'абичиїх', 'абичого', 'абичому', 'абищо', 'абияка', 'абияке', 'абиякий']
+for stopwords in ukrstopWords:
+    stopWords.append(stopwords)
+
+vectorizer_model = CountVectorizer(ngram_range=(1, 2), stop_words=stopWords)
 
 def validate_file(f):
     if not os.path.exists(f):
@@ -28,11 +30,11 @@ class BERTopicAnalysis:
 
     def read_data(self):
         with open(self.input_file) as file:
-            lines = file.readlines()
+            lines = file.readlines()[:20000]
             self.text_to_analyse_list = [line.rstrip() for line in lines]
 
     def fit_BERTopic(self):
-        self.model = BERTopic(verbose=True, language="multilingual", nr_topics='auto') # vectorizer_model=vectorizer_model)#, nr_topics=20)
+        self.model = BERTopic(verbose=True, language="multilingual", nr_topics=self.k_cluster, vectorizer_model=vectorizer_model)#, nr_topics=20)
         topics, probs = self.model.fit_transform(self.text_to_analyse_list)
 
     def save_results(self):
