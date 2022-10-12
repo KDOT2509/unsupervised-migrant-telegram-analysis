@@ -15,7 +15,8 @@ TELEGRAM_API_ID = os.getenv("TELEGRAM_API_ID")
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH")
 
 
-chats = ['https://t.me/refugeesinSwitzerland',
+chats = [
+        'https://t.me/refugeesinSwitzerland',
         'https://t.me/campax_ukraine_help_switzerland',
         'https://t.me/zh_helps_ukraine', 
         'https://t.me/zh_helps_UArefugee',
@@ -35,7 +36,7 @@ chats = ['https://t.me/refugeesinSwitzerland',
         'https://t.me/UASchweiz',
         # https://t.me/naym_info #EU wide channel for Infos for Ukrainians
         'https://t.me/help_people_fromUkraine',
-        'https://t.me/GeneveUkraine',
+        # 'https://t.me/GeneveUkraine',
         #'https://t.me/Stipendii4UA', EU wide funding opportunities 
         'https://t.me/SwissUA',
         'https://t.me/BaselUkraine',
@@ -44,22 +45,28 @@ chats = ['https://t.me/refugeesinSwitzerland',
         'https://t.me/StGallenUkraine',
         ]
 
-csv_path = 'data/telegramAllGroups.csv'
+csv_path = 'data/telegramAllGroupsNew.csv'
 
 async def callAPI():
     chatHttps = []
     messageSender = []
+    messageID = []
+    messageReplyID = []
     messageText = []
     messageDatetime = []
     for chat in tqdm(chats):
         print('scrapping chat:', chat)
         async with TelegramClient('testSession', TELEGRAM_API_ID, TELEGRAM_API_HASH) as client:
             async for message in client.iter_messages(chat):
+                if float(message.id)%10000 == 0:
+                    print (message.id)
                 chatHttps.append(chat)
                 messageSender.append(message.sender_id)
+                messageID.append(message.id)
+                messageReplyID.append(message.reply_to_msg_id)
                 messageText.append(message.text)
                 messageDatetime.append(message.date)
-    df = pd.DataFrame({'chat':chatHttps, 'messageSender':messageSender, 'messageDatetime':messageDatetime, 'messageText':messageText})
+    df = pd.DataFrame({'chat':chatHttps, 'messageSender':messageSender, 'messageID':messageID,'messageReplyID':messageReplyID, 'messageDatetime':messageDatetime, 'messageText':messageText})
     df.to_csv(csv_path, index=False)
 
 def main():
