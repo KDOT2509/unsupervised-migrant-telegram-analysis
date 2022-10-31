@@ -43,7 +43,7 @@ class BERTopicAnalysis:
         hdbscan_model = HDBSCAN(min_cluster_size=10, metric='euclidean', prediction_data=True)
         self.model = BERTopic(verbose=True,
                               language="multilingual",
-                              nr_topics=20,  #TODO change to self.k_cluster
+                              nr_topics="auto",  #TODO change to self.k_cluster
                               vectorizer_model=vectorizer_model,
                             #   min_topic_size=100,
                               umap_model=umap_model,
