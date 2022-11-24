@@ -1,4 +1,5 @@
 from telethon import TelegramClient, events, sync
+import telethon
 import pandas as pd
 import asyncio
 import os
@@ -6,6 +7,8 @@ from dotenv import load_dotenv
 load_dotenv() 
 import datetime
 from tqdm import tqdm 
+import argparse
+import time
 
 
 # These example values won't work. You must get your own api_id and
@@ -14,49 +17,31 @@ from tqdm import tqdm
 TELEGRAM_API_ID = os.getenv("TELEGRAM_API_ID")
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH")
 
+def validate_file(f):
+    if not os.path.exists(f):
+        raise argparse.ArgumentTypeError("{0} does not exist".format(f))
+    return f
 
-chats = [
-        'https://t.me/refugeesinSwitzerland',
-        'https://t.me/campax_ukraine_help_switzerland',
-        'https://t.me/zh_helps_ukraine', 
-        'https://t.me/zh_helps_UArefugee',
-        'https://t.me/zurich_hb_help',
-        'https://t.me/zh_housing',
-        'https://t.me/helppetsfromukraine',
-        'https://t.me/Zurich_UA',
-        'https://t.me/zh_helps_UArefugees',
-        'https://t.me/seep_helpukrainians',
-        'https://t.me/Zh_helps_UA_mums',
-        'https://t.me/job_sw_ukrainians',
-        'https://t.me/zh_back_ukraine',
-        'https://t.me/zh_helps_logistics',
-        'https://t.me/AargauUkraine',
-        'https://t.me/BernUkraine',
-        'https://t.me/TicinoLuganoUkraine',
-        'https://t.me/UASchweiz',
-        # https://t.me/naym_info #EU wide channel for Infos for Ukrainians
-        'https://t.me/help_people_fromUkraine',
-        # 'https://t.me/GeneveUkraine',
-        #'https://t.me/Stipendii4UA', EU wide funding opportunities 
-        'https://t.me/SwissUA',
-        'https://t.me/BaselUkraine',
-        'https://t.me/ukrainer_basel',
-        'https://t.me/GeneveUkraine',
-        'https://t.me/StGallenUkraine',
-        ]
-
-csv_path = 'data/telegramAllGroupsNew.csv'
-
-async def callAPI():
+async def callAPI(input_file, output_folder_path, images):
+    with open(input_file) as file:
+        chats = file.readlines()
+        chats = [chat.replace('\n','') for chat in chats if not chat.startswith("#")]
     chatHttps = []
     messageSender = []
     messageID = []
     messageReplyID = []
     messageText = []
     messageDatetime = []
+    messageViews=[] 
+    messageForwards=[]
+    messageReactions = []
+    messageMedia = []
+    # time = []
     for chat in tqdm(chats):
         print('scrapping chat:', chat)
         async with TelegramClient('testSession', TELEGRAM_API_ID, TELEGRAM_API_HASH) as client:
+            # start = time.time()
+            chat_short=chat.split('/')[-1]
             async for message in client.iter_messages(chat):
                 if float(message.id)%10000 == 0:
                     print (message.id)
@@ -66,12 +51,39 @@ async def callAPI():
                 messageReplyID.append(message.reply_to_msg_id)
                 messageText.append(message.text)
                 messageDatetime.append(message.date)
-    df = pd.DataFrame({'chat':chatHttps, 'messageSender':messageSender, 'messageID':messageID,'messageReplyID':messageReplyID, 'messageDatetime':messageDatetime, 'messageText':messageText})
-    df.to_csv(csv_path, index=False)
+                messageViews.append(message.views)
+                messageForwards.append(message.forwards)
+                messageReactions.append(message.reactions)
+                if images:
+                    print("test")
+                    if message.photo:
+                        try: 
+                            path = await client.download_media(message.media, f'{output_folder_path}images/{chat_short}_{message.id}')
+                        except telethon.errors.rpcerrorlist.FileMigrateError:
+                            "file download not possible"
+                        except ValueError:
+                            "File download not possible"
+            # end = time.time()
+            # print(end - start)
+    df = pd.DataFrame({'chat':chatHttps, 
+                       'messageSender':messageSender, 
+                       'messageID':messageID,
+                       'messageReplyID':messageReplyID,
+                       'messageDatetime':messageDatetime, 
+                       'messageViews':messageViews,
+                       'messageForwards':messageForwards,
+                       'messageReactions':messageReactions,
+                       'messageText':messageText})
+    df.to_csv(f'{output_folder_path}df.csv', index=False)
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input_file', help="Specify the input file", type=validate_file, required=True) #TODO change to argparse.FileType('r')
+    parser.add_argument('-o', '--output_folder', help="Specify location of output folder", required=True)
+    parser.add_argument('-im', '--images', help="does inference on data", action='store_true')
+    args = parser.parse_args()
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(callAPI())
+    loop.run_until_complete(callAPI(args.input_file, args.output_folder, args.images))
     loop.close()
 
 if __name__ == '__main__':
