@@ -63,7 +63,7 @@ class BERTopicAnalysis:
                             #   min_topic_size=self.min_topic_size,
                               umap_model=umap_model,
                               hdbscan_model=hdbscan_model,
-                              calculate_probabilities=True
+                            #   calculate_probabilities=True
                               )#, nr_topics=int(self.k_cluster))
         topics, probs = self.model.fit_transform(self.text_to_analyse_list)
 
@@ -89,9 +89,9 @@ class BERTopicAnalysis:
         self.model.get_topic_info().to_csv(f"{self.output_folder}/topic_info.csv")
 
     def inference(self):
-        pred, probs=self.model.transform(self.df['messageText'].values)
+        pred = self.model.transform(self.df['messageText'].values)
         self.df['cluster'] = pred
-        self.df = pd.merge(self.df,pd.DataFrame(probs, columns=['prob_0', 'prob_1', 'prob_2', 'prob_3', 'prob_4', 'prob_5', 'prob_6', 'prob_7', 'prob_8', 'prob_9']), left_index=True, right_index=True)
+        # self.df = pd.merge(self.df,pd.DataFrame(probs, columns=['prob_0', 'prob_1', 'prob_2', 'prob_3', 'prob_4', 'prob_5', 'prob_6', 'prob_7', 'prob_8', 'prob_9']), left_index=True, right_index=True)
         self.df.to_csv(f"{self.output_folder}/df.csv", index=False)
 
     def run_all(self):
@@ -108,10 +108,12 @@ class BERTopicAnalysis:
 
 def main():
     parser = argparse.ArgumentParser()
+    # sample use python src/
     parser.add_argument('-i', '--input_file', help="Specify the input file", type=validate_file, required=True) #TODO change to argparse.FileType('r')
     parser.add_argument('-o', '--output_folder', help="Specify folder for results", required=True)
     parser.add_argument('-k', '--k_cluster', help="number of topic cluster", required=False, default="auto")
     parser.add_argument('-di', '--do_inference', help="does inference on data", action='store_true')
+    # parser.add_argument('-cp', '--calculate_probs', help="does inference on data", action='store_true')
     args = parser.parse_args()
     BERTopic_Analysis = BERTopicAnalysis(args.input_file,
                                          args.output_folder,
