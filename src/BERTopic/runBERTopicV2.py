@@ -89,7 +89,7 @@ class BERTopicAnalysis:
         self.model.get_topic_info().to_csv(f"{self.output_folder}/topic_info.csv")
 
     def inference(self):
-        pred = self.model.transform(self.df['messageText'].values)
+        pred, prob = self.model.transform(self.df['messageText'].values)
         self.df['cluster'] = pred
         # self.df = pd.merge(self.df,pd.DataFrame(probs, columns=['prob_0', 'prob_1', 'prob_2', 'prob_3', 'prob_4', 'prob_5', 'prob_6', 'prob_7', 'prob_8', 'prob_9']), left_index=True, right_index=True)
         self.df.to_csv(f"{self.output_folder}/df.csv", index=False)
