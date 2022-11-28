@@ -9,11 +9,13 @@ import leafmap.foliumap as leafmap
 #Config must be first line in script
 st.set_page_config(layout="wide")
 
+# TODO styler package
+
 gdf = gpd.read_file("data/geodata/geojson/chf.geojson")
 
 @st.cache
 def load_telegram_data():
-    df = pd.read_csv("models//BERTopic100CharMin2500CharMax_10ClassesNewestData/df_prep.csv")
+    df = pd.read_csv("models//BERTopic100CharMin2500CharMax_20/df_prep.csv")
     return df
 
 def create_df_value_counts(df):
@@ -25,7 +27,7 @@ def create_df_value_counts(df):
 
 def modify_df_for_table(df_mod, canton_select, cluster_select, metric_select, week_slider):
     if canton_select!="all Cantons":
-        f"""{canton_select}"""
+        df_mod = df_mod[df_mod.canton==canton_select]
     if not "all found clusters" in cluster_select:
         df_mod = df_mod[df_mod.cluster_names.isin(cluster_select)]
     df_mod = df_mod[df_mod.week.between(week_slider[0], week_slider[1])]
@@ -34,17 +36,18 @@ def modify_df_for_table(df_mod, canton_select, cluster_select, metric_select, we
     df_mod = df_mod[["chat", "messageText", "cluster_names", "messageDatetime", "week", "messageViews", "messageForwards", "reaction_count"]]
     return df_mod
 
-# TODO styler package
-
 df = load_telegram_data()
 
 st.title('Identification of Refugee Needs via Telegram')
 
 text_col1, text_col2, text_col3, text_col4 = st.columns(4)
 with text_col1:
+    cantons = df.canton.unique().tolist()
+    cantons.remove("general")
+    canton_selection = ["all Cantons"] + cantons
     canton_select = st.selectbox(
         "Select a canton of interest",
-        ("all Cantons", "Zürich", "St. Gallen")
+        canton_selection,
         )
 with text_col2:    
     cluster_select = st.multiselect(

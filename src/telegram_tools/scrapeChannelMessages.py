@@ -55,7 +55,6 @@ async def callAPI(input_file, output_folder_path, images):
                 messageForwards.append(message.forwards)
                 messageReactions.append(message.reactions)
                 if images:
-                    print("test")
                     if message.photo:
                         try: 
                             path = await client.download_media(message.media, f'{output_folder_path}images/{chat_short}_{message.id}')
@@ -80,7 +79,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input_file', help="Specify the input file", type=validate_file, required=True) #TODO change to argparse.FileType('r')
     parser.add_argument('-o', '--output_folder', help="Specify location of output folder", required=True)
-    parser.add_argument('-im', '--images', help="does inference on data", action='store_true')
+    parser.add_argument('-im', '--images', help="downloads images of groups", action='store_true')
     args = parser.parse_args()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(callAPI(args.input_file, args.output_folder, args.images))

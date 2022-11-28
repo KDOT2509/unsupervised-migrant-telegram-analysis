@@ -10,6 +10,7 @@ import pandas as pd
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # # TODO add stopwords properly
+# TODO change inference to do on whole dataset
 stopWords = stopwords.words('english') 
 for word in stopwords.words('german'):
     stopWords.append(word)
