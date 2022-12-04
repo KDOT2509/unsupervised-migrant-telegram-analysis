@@ -37,7 +37,7 @@ class BERTopicAnalysis:
     def read_data(self):
         self.df = pd.read_csv(self.input_file)
         self.df.dropna(subset=['messageSender', 'messageText'],inplace=True)
-        self.df.drop_duplicates(subset=['messageText', 'messageSender', 'messageDatetime'], keep='first',inplace=True)
+        self.df.drop_duplicates(subset=['messageText', 'messageSender', 'chat'], keep='first',inplace=True)
         self.df = self.df[self.df['messageText'].map(type) == str]
         self.df["messageText"] = self.df['messageText'].str.split().str.join(' ')
         lines = self.df[(self.df['messageText'].str.len() >= 100) & (self.df['messageText'].str.len() <= 2500)].messageText.values

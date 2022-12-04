@@ -22,7 +22,7 @@ class SentimentClassifier:
 
     def load_data(self):
         self.df = pd.read_csv(self.input_file)
-        self.df = self.df[self.df.cluster!=-1]
+        self.df = self.df[self.df.cluster!=-1].sample(n=1000)
 
     def analyse_sentiment(self, x):
         if len(x)>512:
@@ -34,15 +34,15 @@ class SentimentClassifier:
             for x_split in x_split_list:
                 try:
                     encoded_tweet = self.tokenizer(x_split, return_tensors='pt')
-                except RuntimeError:
+                except (RuntimeError, IndexError) as e:
                     return "Error"
                 try:
                     output = self.model(**encoded_tweet)
-                except RuntimeError:
+                except (RuntimeError, IndexError) as e:
                     return "Error"
                 try:
                     scores_split = output[0][0].detach().numpy()
-                except RuntimeError:
+                except (RuntimeError, IndexError) as e:
                     return "Error"
                 scores_split = softmax(scores_split)
                 scores_split_list.append(scores_split)
@@ -50,15 +50,15 @@ class SentimentClassifier:
         else:
             try:
                 encoded_tweet = self.tokenizer(x, return_tensors='pt')
-            except RuntimeError:
+            except (RuntimeError, IndexError) as e:
                 return "Error"
             try:
                 output = self.model(**encoded_tweet)
-            except RuntimeError:
+            except (RuntimeError, IndexError) as e:
                 return "Error"
             try:
                 scores = output[0][0].detach().numpy()
-            except RuntimeError:
+            except (RuntimeError, IndexError) as e:
                 return "Error"
             scores = softmax(scores)
             return scores

@@ -15,7 +15,7 @@ gdf = gpd.read_file("data/geodata/geojson/europe.geojson")
 
 @st.cache
 def load_telegram_data():
-    df = pd.read_csv("models//BERTopic250CharMin2500CharMax_10Classes_EU/df_prep.csv")
+    df = pd.read_csv("models/BERTopic250CharMin2500CharMax_10Classes_EU/df_prep.csv")
     return df
 
 def create_df_value_counts(df):
