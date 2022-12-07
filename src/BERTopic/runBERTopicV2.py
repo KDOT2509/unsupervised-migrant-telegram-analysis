@@ -15,7 +15,7 @@ for word in stopwords.words('german'):
 for word in stopwords.words('russian'):
     stopWords.append(word)
 #ukrstopWords = ['а', 'аби', 'абиде', 'абиким', 'абикого', 'абиколи', 'абикому', 'абикуди', 'абихто', 'абичий', 'абичийого', 'абичийому', 'абичим', 'абичию', 'абичия', 'абичиє', 'абичиєму', 'абичиєю', 'абичиєї', 'абичиї', 'абичиїй', 'абичиїм', 'абичиїми', 'абичиїх', 'абичого', 'абичому', 'абищо', 'абияка', 'абияке', 'абиякий']
-with open("data/stopwords/stopwords_ua.txt") as file:
+with open("stopwords/stopwords_ua.txt") as file:
     ukrstopWords = [line.rstrip() for line in file]
 for stopwords in ukrstopWords:
     stopWords.append(stopwords)

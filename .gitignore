@@ -6,4 +6,3 @@ plots/*
 *.session
 *.session-journal
 models/*
-!data/stopwords/stopwords_ua.txt
